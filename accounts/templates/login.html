@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeVault | Login</title>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background:#f3f4f6;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        .card{
+            width:450px;
+            background:white;
+            padding:40px;
+            border-radius:12px;
+            box-shadow:0 5px 15px rgba(0,0,0,.1);
+        }
+
+        h1{
+            text-align:center;
+            color:#0f172a;
+            margin-bottom:10px;
+            font-size:48px;
+        }
+
+        p{
+            text-align:center;
+            color:#666;
+            margin-bottom:35px;
+        }
+
+        form p{
+            margin-bottom:18px;
+            text-align:left;
+        }
+
+        label{
+            display:block;
+            margin-bottom:6px;
+            font-weight:500;
+            color:#444;
+        }
+
+        input{
+            width:100%;
+            padding:12px;
+            border:1px solid #ccc;
+            border-radius:6px;
+            font-size:15px;
+        }
+
+        input:focus{
+            outline:none;
+            border-color:#2563eb;
+        }
+
+        button{
+            width:100%;
+            margin-top:10px;
+            padding:13px;
+            border:none;
+            background:#2563eb;
+            color:white;
+            font-size:16px;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#1d4ed8;
+        }
+
+        hr{
+            margin:25px 0;
+            border:none;
+            border-top:1px solid #ddd;
+        }
+
+        .bottom{
+            text-align:center;
+            color:#666;
+        }
+
+        .bottom a{
+            color:#2563eb;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .bottom a:hover{
+            text-decoration:underline;
+        }
+
+        ul{
+            color:red;
+            margin-bottom:15px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <h1>LifeVault</h1>
+    <p>Welcome back</p>
+
+    {% if form.errors %}
+        <ul>
+            <li>Incorrect username or password.</li>
+        </ul>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Username</label>
+            <input type="text" name="username" required>
+        </p>
+
+        <p>
+            <label>Password</label>
+            <input type="password" name="password" required>
+        </p>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <hr>
+
+    <div class="bottom">
+        Don't have an account?
+        <a href="{% url 'register' %}">Register</a>
+    </div>
+
+</div>
+
+</body>
+</html>
