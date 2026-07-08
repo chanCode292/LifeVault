@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Life Vault - Manage Documents</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; background-color: #f4f6f9; }
+        .container { max-width: 1200px; margin: 0 auto; display: flex; gap: 40px; }
+        .panel { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-side { flex: 1; }
+        .table-side { flex: 2; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .btn { background: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>Life Vault Custom Control Panel</h2>
+    <nav>
+        <a href="{% url 'manage_users' %}">Users</a> |
+        <a href="{% url 'manage_categories' %}">Categories</a> |
+        <a href="{% url 'manage_documents' %}">Documents</a> |
+        <a href="{% url 'manage_logs' %}">Activity Logs</a>
+    </nav>
+    <hr>
+
+    <div class="container">
+        <!-- Input Form UI Component -->
+        <div class="panel form-side">
+            <h3>Add New Document Record</h3>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn">Save Document to Vault</button>
+            </form>
+        </div>
+
+        <!-- Data Presentation UI Component -->
+        <div class="panel table-side">
+            <h3>Existing Document Records</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>User ID</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Uploaded Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in documents %}
+                    <tr>
+                        <td>{{ doc.document_id }}</td>
+                        <td>{{ doc.title }}</td>
+                        <td>{{ doc.user.user_id }}</td>
+                        <td>{{ doc.category.cat_name }}</td>
+                        <td>{{ doc.status }}</td>
+                        <td>{{ doc.uploaded_at }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6">No document records found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>

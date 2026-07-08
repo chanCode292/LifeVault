@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Activity Logs - LifeVault{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1 class="panel-title">📋 File Activity Logs</h1>
+    
+    <div class="grid">
+        <!-- Log Creation Form -->
+        <div class="panel">
+            <h3>Create Log Entry</h3>
+            <form method="POST" action="{% url 'manage_logs' %}">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}errors{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="form-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit">Create Log Entry</button>
+            </form>
+        </div>
+
+        <!-- Logs List Table -->
+        <div class="panel">
+            <h3>Recent Activity ({{ logs.count }})</h3>
+            {% if logs %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Log ID</th>
+                                <th>User</th>
+                                <th>File</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.log_id }}</td>
+                                <td>{{ log.user.first_name }} {{ log.user.last_name }}</td>
+                                <td>{{ log.name_file }}</td>
+                                <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'view_log' log.log_id %}" class="btn" style="background: #0891b2; padding: 6px 12px; font-size: 12px;">View</a>
+                                        <a href="{% url 'delete_log' log.log_id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No activity logs recorded yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

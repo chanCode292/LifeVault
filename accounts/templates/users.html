@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - LifeVault{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1 class="panel-title">👥 User Management</h1>
+    
+    <div class="grid">
+        <!-- User Creation Form -->
+        <div class="panel">
+            <h3>Create New User</h3>
+            <form method="POST" action="{% url 'manage_users' %}">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}errors{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="form-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit">Create User</button>
+            </form>
+        </div>
+
+        <!-- Users List Table -->
+        <div class="panel">
+            <h3>All Users ({{ users.count }})</h3>
+            {% if users %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.user_id }}</td>
+                                <td>{{ user.first_name }} {{ user.last_name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td><span style="background: #dbeafe; color: #0c4a6e; padding: 4px 8px; border-radius: 4px; font-size: 12px;">{{ user.get_role_status_display }}</span></td>
+                                <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'edit_user' user.user_id %}" class="btn" style="background: #059669; padding: 6px 12px; font-size: 12px;">Edit</a>
+                                        <a href="{% url 'delete_user' user.user_id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No users created yet. Create one using the form on the left.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

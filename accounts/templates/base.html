@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LifeVault{% endblock %}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f3f4f6; }
+        .navbar { background: #0f172a; color: white; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; height: 70px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .navbar-brand { font-size: 24px; font-weight: bold; }
+        .navbar-menu { display: flex; gap: 20px; }
+        .navbar-menu a { color: white; text-decoration: none; padding: 10px 15px; border-radius: 4px; transition: background 0.3s; }
+        .navbar-menu a:hover { background: #2563eb; }
+        .container { display: flex; min-height: calc(100vh - 70px); }
+        .sidebar { width: 260px; background: #0f172a; color: white; padding: 30px 20px; }
+        .sidebar-title { font-size: 18px; margin-bottom: 30px; text-align: center; }
+        .sidebar a { display: block; color: #cbd5e1; padding: 12px; text-decoration: none; border-radius: 6px; margin-bottom: 10px; transition: background 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background: #2563eb; color: white; }
+        .main-content { flex: 1; padding: 40px; }
+        .panel { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
+        .panel-title { font-size: 24px; color: #0f172a; margin-bottom: 25px; border-bottom: 2px solid #2563eb; padding-bottom: 10px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: #1e293b; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+        .form-group.errors input, .form-group.errors select, .form-group.errors textarea { border-color: #dc2626; }
+        .form-errors { color: #dc2626; font-size: 13px; margin-top: 5px; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        button, .btn { background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-decoration: none; display: inline-block; transition: background 0.3s; }
+        button:hover, .btn:hover { background: #1d4ed8; }
+        button.btn-danger { background: #dc2626; }
+        button.btn-danger:hover { background: #b91c1c; }
+        button.btn-secondary { background: #64748b; }
+        button.btn-secondary:hover { background: #475569; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { background: #f8fafc; color: #475569; padding: 12px; text-align: left; font-weight: 600; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+        tr:hover { background: #f8fafc; }
+        .action-buttons { display: flex; gap: 8px; }
+        .action-buttons a, .action-buttons button { padding: 8px 12px; font-size: 13px; }
+        .empty-state { text-align: center; padding: 40px; color: #64748b; }
+        .alert { padding: 15px 20px; border-radius: 6px; margin-bottom: 20px; }
+        .alert-success { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
+        .alert-error { background: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+        .breadcrumb { margin-bottom: 20px; color: #64748b; }
+        .breadcrumb a { color: #2563eb; text-decoration: none; }
+        .grid { display: grid; grid-template-columns: 1fr 2fr; gap: 30px; }
+        .responsive-table { overflow-x: auto; }
+        @media (max-width: 768px) { .container { flex-direction: column; } .sidebar { width: 100%; padding: 20px; } .grid { grid-template-columns: 1fr; } }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-brand">LifeVault</div>
+        <div class="navbar-menu">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-title">Navigation</div>
+            <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">📊 Overview</a>
+            <a href="{% url 'upload_document' %}" style="background: #059669; margin-bottom: 20px; border-radius: 6px;">📤 Upload Document</a>
+            <a href="{% url 'manage_documents' %}" class="{% if request.resolver_match.url_name|slice:':5' == 'manag' and 'document' in request.resolver_match.url_name %}active{% endif %}">📄 Documents</a>
+            <a href="{% url 'manage_categories' %}" class="{% if request.resolver_match.url_name|slice:':5' == 'manag' and 'categor' in request.resolver_match.url_name %}active{% endif %}">📁 Categories</a>
+            <a href="{% url 'manage_logs' %}" class="{% if request.resolver_match.url_name|slice:':5' == 'manag' and 'log' in request.resolver_match.url_name %}active{% endif %}">📋 Activity Logs</a>
+            <hr style="border: none; border-top: 1px solid #334155; margin: 20px 0; opacity: 0.5;">
+            <a href="{% url 'manage_users' %}" class="{% if request.resolver_match.url_name|slice:':5' == 'manag' and 'user' in request.resolver_match.url_name %}active{% endif %}">👥 Users (Admin)</a>
+            <a href="{% url 'how_it_works' %}" style="background: #667eea; margin-top: 20px;">ℹ️ How It Works</a>
+        </div>
+
+        <div class="main-content">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Document Categories - LifeVault{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1 class="panel-title">📁 Document Categories</h1>
+    
+    <div class="grid">
+        <!-- Category Creation Form -->
+        <div class="panel">
+            <h3>Create New Category</h3>
+            <form method="POST" action="{% url 'manage_categories' %}">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}errors{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="form-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit">Create Category</button>
+            </form>
+        </div>
+
+        <!-- Categories List Table -->
+        <div class="panel">
+            <h3>All Categories ({{ categories.count }})</h3>
+            {% if categories %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Created</th>
+                                <th>Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in categories %}
+                            <tr>
+                                <td>{{ category.cat_id }}</td>
+                                <td>{{ category.cat_name }}</td>
+                                <td>{{ category.created_at|date:"Y-m-d H:i" }}</td>
+                                <td>{{ category.updated_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'edit_category' category.cat_id %}" class="btn" style="background: #059669; padding: 6px 12px; font-size: 12px;">Edit</a>
+                                        <a href="{% url 'delete_category' category.cat_id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No categories created yet. Create one using the form on the left.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

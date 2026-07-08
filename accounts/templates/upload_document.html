@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Document - LifeVault{% endblock %}
+
+{% block content %}
+<style>
+    .workflow-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+        opacity: 0.5;
+    }
+    
+    .workflow-step.active {
+        opacity: 1;
+    }
+    
+    .step-number {
+        background: #2563eb;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .workflow-step.active .step-number {
+        background: #059669;
+        box-shadow: 0 0 10px rgba(5, 150, 105, 0.5);
+    }
+    
+    .step-content h3 {
+        margin: 0 0 5px 0;
+        font-size: 16px;
+    }
+    
+    .step-content p {
+        margin: 0;
+        color: #64748b;
+        font-size: 14px;
+    }
+    
+    .upload-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px;
+        border-radius: 12px;
+        text-align: center;
+        margin-bottom: 30px;
+        cursor: pointer;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .upload-section:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .upload-section input[type="file"] {
+        display: none;
+    }
+    
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+    }
+    
+    .file-preview {
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+        display: none;
+    }
+    
+    .file-preview.active {
+        display: block;
+    }
+    
+    .form-section {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+    
+    .form-section h3 {
+        color: #0f172a;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 10px;
+    }
+    
+    .info-box {
+        background: #e0e7ff;
+        border-left: 4px solid #2563eb;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        color: #1e3a8a;
+        font-size: 14px;
+    }
+    
+    .date-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+    
+    .status-badge {
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .status-new {
+        background: #dcfce7;
+        color: #166534;
+    }
+</style>
+
+<div class="breadcrumb">
+    <a href="{% url 'dashboard' %}">Dashboard</a> &gt; 
+    <a href="{% url 'manage_documents' %}">Documents</a> &gt; Upload
+</div>
+
+<h1 class="panel-title">📤 Upload Document to LifeVault</h1>
+
+<!-- Workflow Visualization -->
+<div class="panel" style="margin-bottom: 30px;">
+    <h3 style="margin-bottom: 20px;">How it Works</h3>
+    
+    <div class="workflow-step active">
+        <div class="step-number">1</div>
+        <div class="step-content">
+            <h3>📁 Upload Document</h3>
+            <p>Select and upload your document file (PDF, JPG, PNG, DOCX, XLSX)</p>
+        </div>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+            <h3>📝 Enter Information</h3>
+            <p>Add document details: title, category, dates, and document number</p>
+        </div>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+            <h3>🔍 System Organizes</h3>
+            <p>LifeVault automatically organizes your document by category</p>
+        </div>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+            <h3>📅 Monitor Expiration</h3>
+            <p>System tracks expiration date and alerts you before renewal date</p>
+        </div>
+    </div>
+    
+    <div class="workflow-step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+            <h3>🔔 Get Reminders</h3>
+            <p>Receive notifications when documents are about to expire</p>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Form -->
+<form method="POST" enctype="multipart/form-data" id="upload-form">
+    {% csrf_token %}
+    
+    <!-- Step 1: File Upload -->
+    <div class="form-section">
+        <h3>📁 Step 1: Upload Your Document</h3>
+        
+        <div class="info-box">
+            💡 Supported file types: PDF, JPG, PNG, DOCX, XLSX (Max 10MB)
+        </div>
+        
+        <!-- Drag & Drop Upload Area -->
+        <div class="upload-section" id="upload-area">
+            <div class="upload-icon">📤</div>
+            <h3 style="margin-bottom: 5px;">Click to upload or drag and drop</h3>
+            <p style="margin: 0; opacity: 0.9;">PDF, JPG, PNG, DOCX, XLSX (up to 10MB)</p>
+            <input type="file" id="file-upload" name="document_file" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.txt">
+        </div>
+        
+        <!-- File Preview -->
+        <div class="file-preview" id="file-preview">
+            <strong>Selected File:</strong>
+            <div id="file-name" style="color: #059669; margin-top: 5px;">📄 No file selected</div>
+            <div id="file-size" style="color: #64748b; font-size: 12px; margin-top: 5px;"></div>
+        </div>
+        
+        {% if form.document_file.errors %}
+            <div class="form-errors" style="color: #dc2626; margin-top: 10px;">
+                {{ form.document_file.errors }}
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Step 2: Document Information -->
+    <div class="form-section">
+        <h3>📝 Step 2: Enter Document Information</h3>
+        
+        <div class="form-group">
+            <label for="id_user">User <span style="color: #dc2626;">*</span></label>
+            {{ form.user }}
+            {% if form.user.errors %}<div class="form-errors">{{ form.user.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_category">Document Category <span style="color: #dc2626;">*</span></label>
+            {{ form.category }}
+            <small style="color: #64748b;">Select the category this document belongs to (e.g., Government IDs, Medical Records)</small>
+            {% if form.category.errors %}<div class="form-errors">{{ form.category.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_title">Document Title <span style="color: #dc2626;">*</span></label>
+            {{ form.title }}
+            <small style="color: #64748b;">e.g., "My Passport", "Driver's License", "Birth Certificate"</small>
+            {% if form.title.errors %}<div class="form-errors">{{ form.title.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_description">Description</label>
+            {{ form.description }}
+            <small style="color: #64748b;">Any additional notes about this document</small>
+            {% if form.description.errors %}<div class="form-errors">{{ form.description.errors }}</div>{% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="id_document_number">Document Number/ID</label>
+            {{ form.document_number }}
+            <small style="color: #64748b;">Optional: Passport number, driver's license number, ID number, etc.</small>
+            {% if form.document_number.errors %}<div class="form-errors">{{ form.document_number.errors }}</div>{% endif %}
+        </div>
+    </div>
+    
+    <!-- Step 3 & 4: Dates -->
+    <div class="form-section">
+        <h3>📅 Step 3 & 4: Set Expiration Dates</h3>
+        
+        <div class="info-box">
+            ⏰ LifeVault will track these dates and alert you 30 days before expiration
+        </div>
+        
+        <div class="date-grid">
+            <div class="form-group">
+                <label for="id_issue_date">Issue Date (When issued)</label>
+                {{ form.issue_date }}
+                <small style="color: #64748b;">When was this document issued?</small>
+                {% if form.issue_date.errors %}<div class="form-errors">{{ form.issue_date.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_expiration_date">Expiration Date <span style="color: #dc2626;">*</span></label>
+                {{ form.expiration_date }}
+                <small style="color: #64748b;">When does this document expire?</small>
+                {% if form.expiration_date.errors %}<div class="form-errors">{{ form.expiration_date.errors }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status -->
+    <div class="form-section">
+        <h3>🏷️ Status</h3>
+        
+        <div class="form-group">
+            <label for="id_status">Document Status</label>
+            {{ form.status }}
+            <small style="color: #64748b;">Usually leave as "valid" for new documents</small>
+            {% if form.status.errors %}<div class="form-errors">{{ form.status.errors }}</div>{% endif %}
+        </div>
+    </div>
+    
+    <!-- Hidden file path (auto-set) -->
+    <div class="form-group" style="display: none;">
+        <label for="id_file_path">File Path</label>
+        {{ form.file_path }}
+    </div>
+    
+    <!-- Submit Buttons -->
+    <div class="button-group">
+        <button type="submit" class="btn" style="background: #059669; padding: 15px 30px; font-size: 16px;">
+            ✅ Upload & Save Document
+        </button>
+        <a href="{% url 'manage_documents' %}" class="btn btn-secondary" style="padding: 15px 30px; font-size: 16px;">Cancel</a>
+    </div>
+</form>
+
+<!-- JavaScript for file upload -->
+<script>
+    // Drag and drop functionality
+    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById('file-upload');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.backgroundColor = 'rgba(255,255,255,0.1)';
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.backgroundColor = '';
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.backgroundColor = '';
+        
+        if (e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            updateFilePreview();
+        }
+    });
+    
+    fileInput.addEventListener('change', updateFilePreview);
+    
+    function updateFilePreview() {
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileName.textContent = '📄 ' + file.name;
+            fileSize.textContent = 'Size: ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            filePreview.classList.add('active');
+            
+            // Auto-fill title from filename
+            const titleField = document.getElementById('id_title');
+            if (!titleField.value) {
+                titleField.value = file.name.replace(/\.[^/.]+$/, "");
+            }
+        } else {
+            fileName.textContent = '📄 No file selected';
+            fileSize.textContent = '';
+            filePreview.classList.remove('active');
+        }
+    }
+</script>
+
+{% endblock %}

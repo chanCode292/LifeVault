@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Documents - LifeVault{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1 class="panel-title">📄 Document Management</h1>
+    
+    <div class="grid">
+        <!-- Document Creation Form -->
+        <div class="panel">
+            <h3>Create New Document</h3>
+            <form method="POST" action="{% url 'manage_documents' %}">
+                {% csrf_token %}
+                
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}errors{% endif %}">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="form-errors">
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit">Create Document</button>
+            </form>
+        </div>
+
+        <!-- Documents List Table -->
+        <div class="panel">
+            <h3>All Documents ({{ documents.count }})</h3>
+            {% if documents %}
+                <div class="responsive-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Document Number</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Expires</th>
+                                <th>Uploaded</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for document in documents %}
+                            <tr>
+                                <td><strong>{{ document.title }}</strong></td>
+                                <td>{{ document.document_number|default:"—" }}</td>
+                                <td>{{ document.category.cat_name }}</td>
+                                <td>
+                                    {% if document.status == 'expired' %}
+                                        <span style="background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 12px;">❌ Expired</span>
+                                    {% elif document.status == 'expiring_soon' %}
+                                        <span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; font-size: 12px;">⚠️ Expiring Soon</span>
+                                    {% elif document.status == 'archived' %}
+                                        <span style="background: #f0f0f0; color: #555; padding: 4px 8px; border-radius: 4px; font-size: 12px;">📦 Archived</span>
+                                    {% else %}
+                                        <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 12px;">✅ Valid</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ document.expiration_date|date:"M d, Y"|default:"No expiry" }}</td>
+                                <td>{{ document.uploaded_at|date:"Y-m-d H:i" }}</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'edit_document' document.document_id %}" class="btn" style="background: #059669; padding: 6px 12px; font-size: 12px;">Edit</a>
+                                        <a href="{% url 'delete_document' document.document_id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No documents uploaded yet. Create one using the form on the left.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

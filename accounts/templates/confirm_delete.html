@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete - LifeVault{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width: 500px; margin: 100px auto;">
+    <h1 class="panel-title">⚠️ Confirm Deletion</h1>
+    
+    <div style="background: #fee2e2; border: 1px solid #fca5a5; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+        <p style="color: #991b1b; margin: 0;">
+            <strong>Are you sure you want to delete this {{ item_type }}?</strong>
+        </p>
+        <p style="color: #991b1b; margin: 5px 0 0 0; font-size: 14px;">
+            This action cannot be undone.
+        </p>
+    </div>
+
+    {% if item_type == 'User' %}
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p><strong>User:</strong> {{ item.first_name }} {{ item.last_name }}</p>
+            <p><strong>Email:</strong> {{ item.email }}</p>
+            <p><strong>ID:</strong> {{ item.user_id }}</p>
+        </div>
+    {% elif item_type == 'Category' %}
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p><strong>Category:</strong> {{ item.cat_name }}</p>
+            <p><strong>ID:</strong> {{ item.cat_id }}</p>
+        </div>
+    {% elif item_type == 'Document' %}
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p><strong>Document:</strong> {{ item.title }}</p>
+            <p><strong>ID:</strong> {{ item.document_id }}</p>
+        </div>
+    {% elif item_type == 'Log Entry' %}
+        <div style="background: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+            <p><strong>Log Entry:</strong> #{{ item.log_id }}</p>
+            <p><strong>File:</strong> {{ item.name_file|default:"N/A" }}</p>
+        </div>
+    {% endif %}
+
+    <form method="POST" style="display: inline-block;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger" style="width: auto; margin-right: 10px;">Yes, Delete</button>
+    </form>
+    
+    <a href="javascript:history.back()" class="btn btn-secondary" style="width: auto;">Cancel</a>
+</div>
+{% endblock %}
